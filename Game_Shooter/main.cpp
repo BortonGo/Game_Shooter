@@ -1,13 +1,33 @@
 #include <SFML/Graphics.hpp>
+#include <SFML/Audio.hpp> 
 #include <vector>
 #include <cstdlib>
 #include <ctime>
+#include <sstream> 
+
 
 int main() {
     sf::RenderWindow window(sf::VideoMode(1920, 1080), "SFML Shooter - Step 4: Collision");
     window.setFramerateLimit(60);
 
     std::srand(static_cast<unsigned>(std::time(nullptr)));
+
+    // Score
+    int score = 0;
+
+    //Font
+    sf::Font font;
+    if (!font.loadFromFile("arialmt.ttf")) {
+        // Вывод ошибки, если шрифт не загрузился
+        return -1;
+    }
+
+    sf::Text scoreText;
+    scoreText.setFont(font);
+    scoreText.setCharacterSize(30);
+    scoreText.setFillColor(sf::Color::White);
+    scoreText.setPosition(20.f, 20.f);
+    scoreText.setString("Score: 0");
 
     // Игрок
     sf::RectangleShape player(sf::Vector2f(50.f, 50.f));
@@ -97,6 +117,14 @@ int main() {
                     enemyIt = enemies.erase(enemyIt);
                     bulletIt = bullets.erase(bulletIt);
                     bulletDestroyed = true;
+
+                    score++;
+
+                    // Обновляем отображаемый текст
+                    std::stringstream ss;
+                    ss << "Score: " << score;
+                    scoreText.setString(ss.str());
+
                     break;
                 }
                 else {
@@ -115,6 +143,7 @@ int main() {
             window.draw(bullet);
         for (const auto& enemy : enemies)
             window.draw(enemy);
+        window.draw(scoreText);
         window.display();
     }
 
