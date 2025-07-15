@@ -88,7 +88,8 @@ void Game::update() {
 
     // Спавн врагов
     if (enemySpawnClock.getElapsedTime().asSeconds() > enemySpawnDelay) {
-        float x = static_cast<float>(std::rand() % (1920 - 50));
+        float margin = 100.f; // отступ слева и справа
+        float x = margin + static_cast<float>(std::rand() % static_cast<int>(1920 - 2 * margin));
         enemies.emplace_back(x);
         enemySpawnClock.restart();
     }

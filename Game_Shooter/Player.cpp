@@ -1,62 +1,77 @@
 #include "Player.h"
 #include <cstdlib>
+#include <iostream>
 
 Player::Player() {
-    shape.setSize(sf::Vector2f(50.f, 50.f));
-    shape.setFillColor(sf::Color::Cyan);
-    shape.setPosition(935.f, 800.f);
+    if (!texture.loadFromFile("player.png")) {
+        std::cerr << "Ошибка: не удалось загрузить player.png" << std::endl;
+        exit(EXIT_FAILURE);
+    }
+
+    sprite.setTexture(texture);
+    sprite.setOrigin(texture.getSize().x / 2.f, texture.getSize().y / 2.f);
+    sprite.setScale(0.2f, 0.2f);
+    sprite.setPosition(935.f, 800.f);
 
     damaged = false;
     damageCooldown = 1.0f;
-    originalPosition = shape.getPosition();
+    originalPosition = sprite.getPosition();
 }
 
 void Player::handleInput(float speed) {
+    sf::Vector2f movement(0.f, 0.f);
+
     if (sf::Keyboard::isKeyPressed(sf::Keyboard::Left) || sf::Keyboard::isKeyPressed(sf::Keyboard::A))
-        shape.move(-speed, 0);
+        movement.x -= speed;
     if (sf::Keyboard::isKeyPressed(sf::Keyboard::Right) || sf::Keyboard::isKeyPressed(sf::Keyboard::D))
-        shape.move(speed, 0);
+        movement.x += speed;
     if (sf::Keyboard::isKeyPressed(sf::Keyboard::Up) || sf::Keyboard::isKeyPressed(sf::Keyboard::W))
-        shape.move(0, -speed);
+        movement.y -= speed;
     if (sf::Keyboard::isKeyPressed(sf::Keyboard::Down) || sf::Keyboard::isKeyPressed(sf::Keyboard::S))
-        shape.move(0, speed);
+        movement.y += speed;
 
-    // Ограничения экрана
-    sf::Vector2f pos = shape.getPosition();
-    if (pos.x < 0) shape.setPosition(0, pos.y);
-    if (pos.x + shape.getSize().x > 1920) shape.setPosition(1920 - shape.getSize().x, pos.y);
-    if (pos.y < 0) shape.setPosition(pos.x, 0);
-    if (pos.y + shape.getSize().y > 1080) shape.setPosition(pos.x, 1080 - shape.getSize().y);
+    sprite.move(movement);
 
-    // Сохраняем позицию только если НЕ в состоянии урона
-    if (!isDamaged()) {
-        originalPosition = shape.getPosition();
-    }
+    // Получаем границы спрайта
+    sf::FloatRect bounds = sprite.getGlobalBounds();
+    sf::Vector2f pos = sprite.getPosition();
+
+    // Проверка границ с учетом размеров
+    if (bounds.left < 0)
+        sprite.setPosition(bounds.width / 2.f, pos.y);
+    if (bounds.left + bounds.width > 1920)
+        sprite.setPosition(1920.f - bounds.width / 2.f, pos.y);
+    if (bounds.top < 0)
+        sprite.setPosition(pos.x, bounds.height / 2.f);
+    if (bounds.top + bounds.height > 1080)
+        sprite.setPosition(pos.x, 1080.f - bounds.height / 2.f);
+
+    if (!isDamaged())
+        originalPosition = sprite.getPosition();
 }
 
-void Player::update() {
-    // пусто пока
-}
+
+void Player::update() {}
 
 void Player::draw(sf::RenderWindow& window) {
-    window.draw(shape);
+    window.draw(sprite);
 }
 
 sf::FloatRect Player::getBounds() const {
-    return shape.getGlobalBounds();
+    return sprite.getGlobalBounds();
 }
 
 sf::Vector2f Player::getPosition() const {
-    return shape.getPosition();
-}
-
-void Player::setPosition(const sf::Vector2f& pos) {
-    shape.setPosition(pos);
-    originalPosition = pos;
+    return sprite.getPosition();
 }
 
 sf::Vector2f Player::getCenter() const {
-    return shape.getPosition() + shape.getSize() / 2.f;
+    return sprite.getPosition();
+}
+
+void Player::setPosition(const sf::Vector2f& pos) {
+    sprite.setPosition(pos);
+    originalPosition = pos;
 }
 
 bool Player::isDamaged() const {
@@ -76,7 +91,10 @@ void Player::updateDamageEffect() {
     if (isDamaged()) {
         float offsetX = static_cast<float>((std::rand() % 7) - 3);
         float offsetY = static_cast<float>((std::rand() % 7) - 3);
-        shape.setPosition(originalPosition + sf::Vector2f(offsetX, offsetY));
+        sprite.setPosition(originalPosition + sf::Vector2f(offsetX, offsetY));
     }
-    
+    else {
+        sprite.setPosition(originalPosition);
+    }
 }
+

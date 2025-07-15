@@ -20,7 +20,9 @@ public:
     void updateDamageEffect();
 
 private:
-    sf::RectangleShape shape;
+    sf::Texture texture;
+    sf::Sprite sprite;
+
     bool damaged;
     sf::Clock damageClock;
     float damageCooldown;
