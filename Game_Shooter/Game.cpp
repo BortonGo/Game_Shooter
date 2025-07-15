@@ -1,4 +1,5 @@
 #include "Game.h"
+#include <iostream>
 
 Game::Game()
     : window(sf::VideoMode(1920, 1080), "SFML Shooter"), gameState(GameState::MENU),
@@ -36,6 +37,11 @@ Game::Game()
     livesText.setPosition(1700.f, 20.f);
 
     updateTexts();
+
+    if (!asteroidTexture.loadFromFile("asteroid.png")) {
+        std::cerr << "Ошибка: не удалось загрузить asteroid.png" << std::endl;
+        exit(EXIT_FAILURE);
+    }
 }
 
 void Game::run() {
@@ -90,7 +96,7 @@ void Game::update() {
     if (enemySpawnClock.getElapsedTime().asSeconds() > enemySpawnDelay) {
         float margin = 100.f; // отступ слева и справа
         float x = margin + static_cast<float>(std::rand() % static_cast<int>(1920 - 2 * margin));
-        enemies.emplace_back(x);
+        enemies.emplace_back(x, asteroidTexture);
         enemySpawnClock.restart();
     }
 

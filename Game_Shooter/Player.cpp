@@ -58,7 +58,14 @@ void Player::draw(sf::RenderWindow& window) {
 }
 
 sf::FloatRect Player::getBounds() const {
-    return sprite.getGlobalBounds();
+    sf::FloatRect bounds = sprite.getGlobalBounds();
+    float shrinkX = bounds.width * 0.2f;
+    float shrinkY = bounds.height * 0.2f;
+    bounds.left += shrinkX;
+    bounds.top += shrinkY;
+    bounds.width -= 2 * shrinkX;
+    bounds.height -= 2 * shrinkY;
+    return bounds;
 }
 
 sf::Vector2f Player::getPosition() const {

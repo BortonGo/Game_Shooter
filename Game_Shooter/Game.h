@@ -1,10 +1,9 @@
 #pragma once
 #include <SFML/Graphics.hpp>
+#include <vector>
 #include "Player.h"
 #include "Bullet.h"
 #include "Enemy.h"
-#include <vector>
-#include <sstream>
 
 enum class GameState {
     MENU,
@@ -18,15 +17,6 @@ public:
     void run();
 
 private:
-    void handleEvents();
-    void update();
-    void render();
-
-    void reset();
-    void spawnEnemy();
-    void checkCollisions();
-    void updateTexts();
-
     sf::RenderWindow window;
     GameState gameState;
 
@@ -39,16 +29,24 @@ private:
     float enemySpeed;
     float shootDelay;
     float enemySpawnDelay;
+    int score;
+    int lives;
 
     sf::Clock shootClock;
     sf::Clock enemySpawnClock;
 
-    // UI
-    int score;
-    int lives;
     sf::Font font;
     sf::Text menuText;
     sf::Text gameOverText;
     sf::Text scoreText;
     sf::Text livesText;
+
+    sf::Texture asteroidTexture;
+
+    void handleEvents();
+    void update();
+    void render();
+    void checkCollisions();
+    void updateTexts();
+    void reset();
 };
