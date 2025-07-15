@@ -1,5 +1,6 @@
 #pragma once
 #include <SFML/Graphics.hpp>
+#include <SFML/Audio.hpp>
 #include <vector>
 #include "Player.h"
 #include "Bullet.h"
@@ -42,6 +43,15 @@ private:
     sf::Text livesText;
 
     sf::Texture asteroidTexture;
+
+    sf::Texture backgroundTexture;
+    sf::Sprite backgroundSprite;
+
+    sf::Music backgroundMusic;
+    sf::SoundBuffer shootBuffer;
+    sf::Sound shootSound;
+    sf::SoundBuffer explosionBuffer;
+    sf::Sound explosionSound;
 
     void handleEvents();
     void update();

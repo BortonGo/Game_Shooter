@@ -36,6 +36,35 @@ Game::Game()
     livesText.setFillColor(sf::Color::Red);
     livesText.setPosition(1700.f, 20.f);
 
+    if (!backgroundTexture.loadFromFile("background.png")) {
+        std::cerr << "Ошибка: не удалось загрузить фон background.png" << std::endl;
+        exit(EXIT_FAILURE);
+    }
+    backgroundSprite.setTexture(backgroundTexture);
+    backgroundSprite.setScale(
+        1920.f / backgroundTexture.getSize().x,
+        1080.f / backgroundTexture.getSize().y
+    );
+
+    if (!backgroundMusic.openFromFile("back.ogg")) {
+        std::cerr << "Не удалось загрузить музыку\n";
+        exit(EXIT_FAILURE);
+    }
+    backgroundMusic.setLoop(true);      // Зациклить
+    backgroundMusic.setVolume(30);      // Громкость от 0 до 100
+    backgroundMusic.play();
+
+    if (!shootBuffer.loadFromFile("shoot.ogg")) {
+        std::cerr << "Не удалось загрузить звук стрельбы\n";
+    }
+    shootSound.setBuffer(shootBuffer);
+    shootSound.setVolume(15);
+
+    if (!explosionBuffer.loadFromFile("explosion.ogg")) {
+        std::cerr << "Не удалось загрузить звук взрыва\n";
+    }
+    explosionSound.setBuffer(explosionBuffer);
+    explosionSound.setVolume(20);
     updateTexts();
 
     if (!asteroidTexture.loadFromFile("asteroid.png")) {
@@ -81,6 +110,7 @@ void Game::update() {
     if (sf::Keyboard::isKeyPressed(sf::Keyboard::Space) &&
         shootClock.getElapsedTime().asSeconds() > shootDelay)
     {
+        shootSound.play();
         bullets.emplace_back(player.getCenter() - sf::Vector2f(4.f, 20.f));
         shootClock.restart();
     }
@@ -129,6 +159,7 @@ void Game::checkCollisions() {
         bool hit = false;
         for (auto enemyIt = enemies.begin(); enemyIt != enemies.end(); ) {
             if (bulletIt->getBounds().intersects(enemyIt->getBounds())) {
+                explosionSound.play();
                 enemyIt = enemies.erase(enemyIt);
                 bulletIt = bullets.erase(bulletIt);
                 score++;
@@ -147,6 +178,7 @@ void Game::checkCollisions() {
     for (auto it = enemies.begin(); it != enemies.end(); ) {
         if (it->getBounds().intersects(player.getBounds())) {
             if (!player.isDamaged()) {
+                explosionSound.play();
                 player.takeDamage();
                 lives--;
                 updateTexts();
@@ -169,6 +201,7 @@ void Game::render() {
         window.draw(gameOverText);
     }
     else if (gameState == GameState::PLAYING) {
+        window.draw(backgroundSprite);
         player.draw(window);
         for (const auto& bullet : bullets) bullet.draw(window);
         for (const auto& enemy : enemies) enemy.draw(window);
